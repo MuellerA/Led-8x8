@@ -1,0 +1,144 @@
+# coding: utf-8
+
+  {
+    :AVR =>
+    {
+      :type => :ATmega328P,
+      #:type => :ATtiny45,
+      :clockType => :extern,
+      :clock => 16000000,
+      :clockPrescale => 1, # 1, 2, 4, 8, 16, 32, 64, 128
+
+      :pullupDisable => false,
+
+      :irqTable => :low, # :low, :high ATmega328 only: move irq table to 0x0002 or Reset+2
+
+      :sleepMode => :idle # 328: :idle, :acdNoise, :powerDown, :powerSave, :standby, extStandby
+                          # 45:  :idle, :acdNoise, :powerDown
+    },
+
+    :Int0 =>
+    {
+      :enable => false,
+      :irq => 'ISR_INT0',
+      :irqPullUp => true,
+      :irqMode => :low, # :low, :any, falling, rising 
+    },
+
+    :Int1 =>
+    {
+      :enable => false,
+    },
+
+    :PCInt0 =>
+    {
+      :enable => false,
+    },
+
+    :PCInt1 =>
+    {
+      :enable => false,
+    },
+
+    :PCInt2 =>
+    {
+      :enable => false,
+    },
+
+    :Timer0 =>
+    {
+      :enable => false,
+    },
+
+    :Timer1 =>
+    {
+      :enable => false,
+    },
+
+    :Timer2 =>
+    {
+      :enable => false,
+    },
+
+    :WatchDog =>
+    {
+      :enable => false,
+    },
+
+    :USART => # ATmega328 only
+    {
+      :enable => false,
+      :rxCompleteIrq => nil,
+      :txEmptyIrq => nil,
+      :txCompleteIrq => nil,
+      :mode => :asyncNormal, # :asyncNormal, :asyncDouble, :syncMaster, :syncSlave
+      :clock => 9600,
+      :dataBit => 8, # 5, 6, 7, 8, 9
+      :parity => :none, # :none, :even, :odd
+      :stopBits => 1, # 1, 2
+    },
+
+    :SPI => # ATmega328 only
+    {
+      :enable => false,
+      :irq => nil,
+      :order => :msbFirst, # :msbFirst, :lsbFirst
+      :mode => :master, # :master, :slave
+      :dataMode => 0, # 0, 1, 2, 3
+      :clock => 1000000
+    },
+
+    :TwoWire => # ATmega328 only
+    {
+      :enable => false,
+      :irq => nil,
+      :clock => 500000,
+      :pullup => false,
+      :address => 42,
+      :generalAddressEnable => false
+    },
+
+    :USI => # ATtiny45 only
+    {
+      :enable => false,
+      :protocol => :twoWireLow, # :outputs, :threeWireRising, :twoWire, :twoWireLow
+      :mode => :master,         # :master, :slave
+      :clkSrc => :swClkStrb,    # :noClk, :swClkStrb, :timCmp, :extRising, :extFalling, :extRisingSwClkStrb, :extFallingSwClkStrb
+      :startIrq => nil,
+      :overflowIrq => nil,
+    },
+
+    :ADC =>
+    {
+      :enable => false,
+    },
+
+    :EEPROM =>
+    {
+      :enable => false,
+    },
+
+    :SelfProg =>
+    {
+      :enable => false,
+    },
+
+    :PortB =>
+    {
+      :enable => false,
+      :dir => 0x00, # 1 output, 0 input
+      :val => 0x00, #
+    },
+    :PortC =>
+    {
+      :enable => false,
+      :dir => 0x00, # 1 output, 0 input
+      :val => 0x00, #
+    },
+    :PortA =>
+    {
+      :enable => false,
+      :dir => 0x00, # 1 output, 0 input
+      :val => 0x00, #
+    },
+  }

@@ -39,13 +39,13 @@ led-8x8.$(MCU).o: led-8x8.asm ports.$(MCU).inc
 %.o: %.asm ports.$(MCU).inc
 	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
 
-%.o: %.cpp
+%.$(MCU).o: %.cpp
 	$(AVRDIR)\bin\avr-g++ -O2 -Wall -c -mmcu=$(MCU) -o $@ $<
 
-ball.o: ball.h
+ball.$(MCU).o: ball.h
 
-led-8x8.$(MCU).elf: boot.$(MCU).o led-8x8.$(MCU).o ball.o
-	$(AVRDIR)\bin\avr-ld -o $@ boot.$(MCU).o led-8x8.$(MCU).o ball.o
+led-8x8.$(MCU).elf: boot.$(MCU).o led-8x8.$(MCU).o ball.$(MCU).o
+	$(AVRDIR)\bin\avr-ld -o $@ boot.$(MCU).o led-8x8.$(MCU).o ball.$(MCU).o
 
 %.hex: %.elf
 	$(AVRDIR)\bin\avr-objcopy -O ihex -R .eeporm $< $@

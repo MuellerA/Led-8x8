@@ -31,13 +31,18 @@ BurnFuse:
 endif
 
 boot.$(MCU).asm ports.$(MCU).inc: Config.$(MCU)
-	ruby ../../BootSetup/BootSetup.rb -c Config.$(MCU) -s boot.$(MCU).asm -p ports.$(MCU).inc --regXYZ
+	ruby ../../BootSetup/BootSetup.rb -c Config.$(MCU)
 
 led-8x8.$(MCU).o: led-8x8.asm ports.$(MCU).inc
 	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
 
 %.o: %.asm ports.$(MCU).inc
 	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
+
+%.o: %.cpp
+	$(AVRDIR)\bin\avr-g++ -O2 -Wall -c -mmcu=$(MCU) -o $@ $<
+
+ball.o: ball.h
 
 led-8x8.$(MCU).elf: boot.$(MCU).o led-8x8.$(MCU).o ball.o
 	$(AVRDIR)\bin\avr-ld -o $@ boot.$(MCU).o led-8x8.$(MCU).o ball.o

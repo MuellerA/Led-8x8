@@ -1,5 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // ball.h
+// (c) Andreas Müller
+//     see LICENSE.md
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -55,7 +57,6 @@ public:
 private:
   Pos _x, _y ;
   Col _r, _g, _b ;
-  static unsigned char _rnd ;
 } ;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +64,7 @@ private:
 class LedMatrix
 {
 public:
-#if 1
+#if 0
   static const unsigned char kX = 8 ; // LEDx x - power of 2, max 16
   static const unsigned char kShiftX = 5 ; // bits to shift from 256 to X
   static const unsigned char kY = 8 ; // LEDs y - power of 2, max 16
@@ -82,12 +83,12 @@ public:
   const unsigned char* Data() const ;
   void GetCol(unsigned char byte) const ;
   static const unsigned short Size() ;
-  
+
 private:
   void Clear() ;
   void Set(unsigned char x, unsigned char y, unsigned char data) ;
   void GetColBall(unsigned char byte) const ;
-  
+
 private:
   unsigned char _data[kSize/2] ; // each entry: 2x (2bit colIntensity | 2bit ballId)
   Ball _balls[kBalls] ;

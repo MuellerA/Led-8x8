@@ -29,7 +29,7 @@
 	.global Main
 Main:
 	sbi LedDdr, LedIdx
-
+	
 	;; setup GCC registers
 	clr _Zero
 	;; R0, T scratch
@@ -57,13 +57,6 @@ MainLoop:
 ;;; ========================================================================
 ;;; void SendData()
 ;;; ========================================================================
-	.macro nops cnt=2
-	nop
-	.if \cnt-1
-	nops \cnt-1
-	.endif
-	.endm
-
 	_Data = 13
 	_ByteCnt = 14
 SendData:
@@ -108,6 +101,13 @@ SendDataSixZeros:
 ;;; ========================================================================
 ;;; void SendDataByte(unsigned char byte)
 ;;; ========================================================================
+	.macro nops cnt=2
+	nop
+	.if \cnt-1
+	nops \cnt-1
+	.endif
+	.endm
+
 	.global SendDataByte
 	_BitCnt = 22
 	_Byte = 24

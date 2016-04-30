@@ -57,6 +57,7 @@ void Ball::Col::Update()
     if (_c[2] >= 0x80)
       _dc = -_ball.Rnd(kColDown) ;
   }
+
   _c[2] += _dc ;
   _c[1] = _c[2] >> 2 ;
   _c[0] = _c[1] >> 2 ;

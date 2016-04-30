@@ -30,6 +30,11 @@ BurnFuse:
 	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0xff:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
 endif
 
+ifeq ($(MCU),attiny45)
+ResetFuse:
+	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+endif
+
 boot.$(MCU).asm ports.$(MCU).inc: Config.$(MCU)
 	ruby ../../BootSetup/BootSetup.rb -c Config.$(MCU)
 
@@ -54,4 +59,4 @@ Clean:
 	del boot.asm ports.*.inc *.o *.elf *.hex *~
 
 Help:
-	@echo 'make [MCU=atmega328p|attiny45] [Upload] [Clean] [Help]'
+	@echo 'make [MCU=atmega328p|attiny45] [Upload] [Clean] [BurnFuse] [ResetFuse] [Help]'

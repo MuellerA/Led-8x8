@@ -4,6 +4,8 @@
 
 #include "ball.h"
 
+extern "C" { void SendDataByte(unsigned char c) ; }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Ball
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,21 +110,31 @@ unsigned char Ball::Rnd(Ball::RndType type) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// LedMatrix
+// LedMatrixBall
 ////////////////////////////////////////////////////////////////////////////////
 
-LedMatrix::LedMatrix()
+LedMatrixBall::LedMatrixBall()
 {
   Clear() ;
 }
 
-void LedMatrix::Clear()
+void LedMatrixBall::Run()
 {
-  for (unsigned char *iData = _data, *eData = _data + kSize/2 ; iData < eData ; ++iData)
+  while (1)
+  {
+    Update() ;
+    for (unsigned short i = 0 ; i < 0xffff ; ++i)
+      i = i ;
+  }
+}
+
+void LedMatrixBall::Clear()
+{
+  for (unsigned char *iData = _data, *eData = _data + kSize ; iData < eData ; ++iData)
     *iData = 0 ;
 }
 
-void LedMatrix::Update()
+void LedMatrixBall::Update()
 {
   Clear() ;
 
@@ -137,93 +149,63 @@ void LedMatrix::Update()
 
     if (x > 0)
     {
-      if (y > 0)    Set(x-1, y-1, ballId | 0x04) ;
-                    Set(x-1, y  , ballId | 0x08) ;
-      if (y < kY-1) Set(x-1, y+1, ballId | 0x04) ;
+      if (y > 0)    Set(x-1, y-1, ballId | 0x40) ;
+                    Set(x-1, y  , ballId | 0x80) ;
+      if (y < kY-1) Set(x-1, y+1, ballId | 0x40) ;
     }
 
-    if (y > 0)    Set(x, y-1, ballId | 0x08) ;
-                  Set(x, y  , ballId | 0x0c) ;
-    if (y < kY-1) Set(x, y+1, ballId | 0x08) ;
+    if (y > 0)    Set(x, y-1, ballId | 0x80) ;
+                  Set(x, y  , ballId | 0xc0) ;
+    if (y < kY-1) Set(x, y+1, ballId | 0x80) ;
 
     if (x < kX-1)
     {
-      if (y > 0)    Set(x+1, y-1, ballId | 0x04) ;
-                    Set(x+1, y  , ballId | 0x08) ;
-      if (y < kY-1) Set(x+1, y+1, ballId | 0x04) ;
+      if (y > 0)    Set(x+1, y-1, ballId | 0x40) ;
+                    Set(x+1, y  , ballId | 0x80) ;
+      if (y < kY-1) Set(x+1, y+1, ballId | 0x40) ;
     }
 
     ++ballId ;
   }
+
+  for (unsigned char *iData = _data, *eData = _data + kSize ; iData < eData ; ++iData)
+  {
+    unsigned char data = *iData ;
+    
+    if (data)
+    {
+      GetColorBall(data) ;
+    }
+    else
+    {
+      SendDataByte(0x00) ;
+      SendDataByte(0x00) ;
+      SendDataByte(0x00) ;
+    }
+  }
 }
 
-const unsigned char* LedMatrix::Data() const
-{
-  return _data ;
-}
-
-const unsigned short LedMatrix::Size()
-{
-  return kSize / 2 ;
-}
-
-void LedMatrix::Set(unsigned char x, unsigned char y, unsigned char data)
+void LedMatrixBall::Set(unsigned char x, unsigned char y, unsigned char data)
 {
   unsigned char idx = 0x00 ;
 
-  idx |= (x & 0x06) >> 1 ;
-  idx |= (y & 0x07) << 2 ;
-  idx |= (x & 0x08) << 2 ;
-  idx |= (y & 0x08) << 3 ;
+  idx |= (x & 0x07) << 0 ;
+  idx |= (y & 0x07) << 3 ;
+  idx |= (x & 0x08) << 3 ;
+  idx |= (y & 0x08) << 4 ;
 
-  if (x & 0x01)
-  {
-    if (!(_data[idx] & 0x0f))
-      _data[idx] |= data << 0 ;
-  }
-  else 
-  {
-    if (!(_data[idx] & 0xf0))
-      _data[idx] |= data << 4 ;
-  }
+  _data[idx] = data ;
 }
 
-extern "C" { void SendDataByte(unsigned char c) ; }
-
-void LedMatrix::GetColBall(unsigned char byte) const
+void LedMatrixBall::GetColorBall(unsigned char byte) const
 {
-  unsigned char ballId =  (byte & 0x03) >> 0      ;
-  unsigned char intens = ((byte & 0x0c) >> 2) - 1 ;
+  unsigned char ballId =  (byte & 0x3f) >> 0      ;
+  unsigned char intens = ((byte & 0xc0) >> 6) - 1 ;
 
   const Ball &ball = _balls[ballId] ;
   SendDataByte(ball.G(intens)) ;
   SendDataByte(ball.R(intens)) ;
   SendDataByte(ball.B(intens)) ;  
-}
-
-void LedMatrix::GetCol(unsigned char byte) const
-{
-  if (byte & 0xf0)
-  {
-    GetColBall(byte >> 4) ;
-  }
-  else
-  {
-    SendDataByte(0x00) ;
-    SendDataByte(0x00) ;
-    SendDataByte(0x00) ;
-  }
-  
-  if (byte & 0x0f)
-  {
-    GetColBall(byte >> 0) ;
-  }
-  else
-  {
-    SendDataByte(0x00) ;
-    SendDataByte(0x00) ;
-    SendDataByte(0x00) ;
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

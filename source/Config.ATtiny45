@@ -19,10 +19,10 @@
 
     :Int0 =>
     {
-      :enable => false,
+      :enable => true,
       :irq => 'ISR_INT0',
       :irqPullUp => true,
-      :irqMode => :low, # :low, :any, falling, rising 
+      :irqMode => :falling, # :low, :any, falling, rising 
     },
 
     :Int1 =>

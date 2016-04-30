@@ -3,10 +3,10 @@
   {
     :AVR =>
     {
-      :type => :ATmega328P,
+      :type => :ATtiny85,
       #:type => :ATtiny45,
       :clockType => :extern,
-      :clock => 16000000,
+      :clock => 20000000,
       :clockPrescale => 1, # 1, 2, 4, 8, 16, 32, 64, 128
 
       :pullupDisable => false,

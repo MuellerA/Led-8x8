@@ -6,6 +6,8 @@
 
 	.if __MCU__ == 45
 	.include "ports.attiny45.inc"
+	.elseif __MCU__ == 85
+	.include "ports.attiny85.inc"
 	.elseif __MCU__ == 328
 	.include "ports.atmega328p.inc"
 	.endif
@@ -16,19 +18,60 @@
 	LedIdx = 0
 
 	_Zero = 1
-	_LedMatrixAddrHi = 17
 	_LedMatrixAddrLo = 16
+	_LedMatrixAddrHi = 17
 
 	.global RndVal
 	RndVal = RAMSTART
-	LedMatrixAddr = RndVal + 2
+	FuncSel = RndVal + 2
+	LedMatrixAddr = FuncSel + 2
 
+;;; ========================================================================
+;;; ISR_INT0
+;;; ========================================================================
+	.global ISR_INT0
+ISR_INT0:
+	;; no need to push - gets reinitialized in Main
+
+	;; poor mans debounce
+	ldi 18, 0x20
+	clr 17
+	clr 16
+ISR_INT0Delay:
+	dec 16
+	brne ISR_INT0Delay
+	dec 17
+	brne ISR_INT0Delay
+	dec 18
+	brne ISR_INT0Delay
+
+	ldi   17, lo8(RAMEND)    	
+	out   SPL, 17            	; Stack Pointer Low [0x3d]
+	ldi   17, hi8(RAMEND)    	
+	out   SPH, 17            	; Stack Pointer High [0x3e]
+	ldi   17, 0
+	out   SREG, r17           	; Status Register [0x3f]
+
+	ldi 16, 1<<6
+	out 0x3a, 16		; GIFR, INTF0
+
+	rjmp MainInt0
+	
 ;;; ========================================================================
 ;;; void main()
 ;;; ========================================================================
 	.global Main
 Main:
 	sbi LedDdr, LedIdx
+
+	ldi YL, lo8(FuncSel)
+	ldi YH, hi8(FuncSel)
+	ldi ZL, lo8(MainTable)
+	ldi ZH, hi8(MainTable)
+	st Y, ZL
+	std Y+1, ZH
+
+MainInt0:
 	
 	;; setup GCC registers
 	clr _Zero
@@ -36,67 +79,71 @@ Main:
 	;; R18-27,30-31 call-clobbered
 	;; r2-17,28,29 call-saved
 
+	;; find led function
+	ldi YL, lo8(FuncSel)
+	ldi YH, hi8(FuncSel)
+
+	ld ZL, Y
+	ldd ZH, Y+1
+	lpm XL, Z+
+	lpm XH, Z+
+
+	mov 0, XL
+	or 0, XH
+	brne Main1
+
+	ldi ZL, lo8(MainTable)
+	ldi ZH, hi8(MainTable)
+	lpm XL, Z+
+	lpm XH, Z+
+Main1:
+	st Y, ZL
+	std Y+1, ZH
+
+	movw ZL, XL
+
 	;; LedMatrix RAM address
-	ldi _LedMatrixAddrHi, hi8(LedMatrixAddr)
 	ldi _LedMatrixAddrLo, lo8(LedMatrixAddr)
+	ldi _LedMatrixAddrHi, hi8(LedMatrixAddr)
 
-	;; LedMatrix constructor()
+	sei
+	icall
+
+MainSleep:	
+	sleep
+	rjmp MainSleep
+
+MainTable:
+	.word pm(Balls)
+	.word pm(ConstColRed)
+	.word pm(ConstColBlue)
+	.word 0x0000		; last
+	
+Balls:	
 	movw r24, _LedMatrixAddrLo
-	rcall _ZN9LedMatrixC1Ev
-MainLoop:
-	;; void LedMatrix.Update()
+	rcall _ZN13LedMatrixBallC1Ev	; LedMatrixBall::LedMatrixBall()
 	movw r24, _LedMatrixAddrLo
-	rcall _ZN9LedMatrix6UpdateEv
-
-	rcall SendData
-
-	rcall Delay
-
-	rjmp MainLoop
-
-;;; ========================================================================
-;;; void SendData()
-;;; ========================================================================
-	_Data = 13
-	_ByteCnt = 14
-SendData:
-	;; unsigned char* LedMatrix.Data()
+	rjmp _ZN13LedMatrixBall3RunEv 	; LedMatrixBall::Run()
+	
+ConstColRed:	
+	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
-	rcall _ZNK9LedMatrix4DataEv
-	movw YL, r24
-
-	;; unsigned short LedMatrix.Size()
+	ldi r22, 0x7f
+	ldi r20, 0x00
+	ldi r18, 0x00
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
 	movw r24, _LedMatrixAddrLo
-	rcall _ZN9LedMatrix4SizeEv
-	mov _ByteCnt, r24
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 
-SendDataLoop:
-	ld _Data, Y+
-	tst _Data
-	breq SendDataSixZeros
-
-SendDataSixXXX:
-	;; void LedMatrix.GetCol(unsigned char)
+ConstColBlue:	
+	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
-	mov r22, _Data
-	rcall _ZNK9LedMatrix6GetColEh
-
-	dec _ByteCnt
-	brne SendDataLoop
-	ret
-
-SendDataSixZeros:
-	clr r24
-	rcall SendDataByte
-	rcall SendDataByte
-	rcall SendDataByte
-	rcall SendDataByte
-	rcall SendDataByte
-	rcall SendDataByte
-
-	dec _ByteCnt
-	brne SendDataLoop
-	ret
+	ldi r22, 0x00
+	ldi r20, 0x00
+	ldi r18, 0x7f
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 
 ;;; ========================================================================
 ;;; void SendDataByte(unsigned char byte)

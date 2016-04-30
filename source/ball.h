@@ -61,7 +61,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class LedMatrix
+class LedMatrixBall
 {
 public:
 #if 0
@@ -76,21 +76,19 @@ public:
   static const unsigned char kShiftY = 4 ; // bits to shift from 256 to Y
 #endif
   static const unsigned short kSize = kX * kY ;
-  static const unsigned char kBalls = 3 ; // number of balls - max 4
+  static const unsigned char kBalls = 8 ; // number of balls - max 8
 
-  LedMatrix() ;
-  void Update() ;
-  const unsigned char* Data() const ;
-  void GetCol(unsigned char byte) const ;
-  static const unsigned short Size() ;
+  LedMatrixBall() ;
+  void Run() ;
 
 private:
   void Clear() ;
+  void Update() ;
   void Set(unsigned char x, unsigned char y, unsigned char data) ;
-  void GetColBall(unsigned char byte) const ;
+  void GetColorBall(unsigned char byte) const ;
 
 private:
-  unsigned char _data[kSize/2] ; // each entry: 2x (2bit colIntensity | 2bit ballId)
+  unsigned char _data[kSize] ; // each entry: 2x (2bit colIntensity | 6bit ballId)
   Ball _balls[kBalls] ;
 } ;
 

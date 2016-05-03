@@ -29,6 +29,8 @@ endif
 
 ALL:	led-8x8.$(MCU).hex
 
+Files = boot.$(MCU).o led-8x8.$(MCU).o ledMatrix.$(MCU).o ball.$(MCU).o constCol.$(MCU).o pump.$(MCU).o flow.$(MCU).o
+
 Upload: led-8x8.$(MCU).hex
 	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) $(ERASE) -U flash:w:$<:i
 
@@ -57,13 +59,13 @@ led-8x8.$(MCU).o: led-8x8.asm ports.$(MCU).inc
 %.o: %.asm ports.$(MCU).inc
 	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
 
-%.$(MCU).o: %.cpp
+%.$(MCU).o: %.cpp ledMatrix.h
 	$(AVRDIR)\bin\avr-g++ -O2 -Wall -c -mmcu=$(MCU) -o $@ $<
 
 ball.$(MCU).o: ball.h
 
-led-8x8.$(MCU).elf: boot.$(MCU).o led-8x8.$(MCU).o ball.$(MCU).o constCol.$(MCU).o
-	$(AVRDIR)\bin\avr-ld -o $@ boot.$(MCU).o led-8x8.$(MCU).o ball.$(MCU).o constCol.$(MCU).o
+led-8x8.$(MCU).elf: $(Files)
+	$(AVRDIR)\bin\avr-ld -o $@ $(Files)
 
 %.hex: %.elf
 	$(AVRDIR)\bin\avr-objcopy -O ihex -R .eeporm $< $@

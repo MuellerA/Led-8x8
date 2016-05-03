@@ -115,8 +115,15 @@ MainSleep:
 
 MainTable:
 	.word pm(Balls)
+	.word pm(Pump0)
+	.word pm(Pump1)
+	.word pm(Flow)
 	.word pm(ConstColRed)
+	.word pm(ConstColGreen)
 	.word pm(ConstColBlue)
+	.word pm(ConstColWhite1)
+	.word pm(ConstColWhite2)
+	.word pm(ConstColWhite3)
 	.word 0x0000		; last
 	
 Balls:	
@@ -124,12 +131,43 @@ Balls:
 	rcall _ZN13LedMatrixBallC1Ev	; LedMatrixBall::LedMatrixBall()
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN13LedMatrixBall3RunEv 	; LedMatrixBall::Run()
-	
+
+Pump0:
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x00
+	rcall _ZN4PumpC1Eh		; Pump::Pump()
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN4Pump3RunEv	 	; Pump::Run()
+
+Pump1:
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x01
+	rcall _ZN4PumpC1Eh		; Pump::Pump()
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN4Pump3RunEv	 	; Pump::Run()
+
+Flow:
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x01
+	rcall _ZN4FlowC1Eh		; Flow::Flow()
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN4Flow3RunEv	 	; Flow::Run()
+
 ConstColRed:	
 	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
-	ldi r22, 0x7f
+	ldi r22, 0xff
 	ldi r20, 0x00
+	ldi r18, 0x00
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
+
+ConstColGreen:	
+	;; ConstCol constructor()
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x00
+	ldi r20, 0xff
 	ldi r18, 0x00
 	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
 	movw r24, _LedMatrixAddrLo
@@ -140,7 +178,37 @@ ConstColBlue:
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x00
 	ldi r20, 0x00
+	ldi r18, 0xff
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
+
+ConstColWhite1:	
+	;; ConstCol constructor()
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x3f
+	ldi r20, 0x3f
+	ldi r18, 0x3f
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
+
+ConstColWhite2:	
+	;; ConstCol constructor()
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0x7f
+	ldi r20, 0x7f
 	ldi r18, 0x7f
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	movw r24, _LedMatrixAddrLo
+	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
+
+ConstColWhite3:	
+	;; ConstCol constructor()
+	movw r24, _LedMatrixAddrLo
+	ldi r22, 0xff
+	ldi r20, 0xff
+	ldi r18, 0xff
 	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
@@ -203,6 +271,16 @@ B1:
 BitDec:	dec _BitCnt		; 1
 	brne BitLoop		; 2|1
 
+	ret
+
+;;; ========================================================================
+;;; void Nop()
+;;; ========================================================================
+	.global Nop
+Nop:	nop
+	nop
+	nop
+	nop
 	ret
 
 ;;; ========================================================================

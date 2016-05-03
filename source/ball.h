@@ -8,6 +8,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "ledMatrix.h"
+
+////////////////////////////////////////////////////////////////////////////////
+
 class Ball
 {
   class Pos
@@ -64,18 +68,6 @@ private:
 class LedMatrixBall
 {
 public:
-#if 0
-  static const unsigned char kX = 8 ; // LEDx x - power of 2, max 16
-  static const unsigned char kShiftX = 5 ; // bits to shift from 256 to X
-  static const unsigned char kY = 8 ; // LEDs y - power of 2, max 16
-  static const unsigned char kShiftY = 5 ; // bits to shift from 256 to
-#else
-  static const unsigned char kX = 16 ; // LEDx x - power of 2, max 16
-  static const unsigned char kShiftX = 4 ; // bits to shift from 256 to X
-  static const unsigned char kY = 16 ; // LEDs y - power of 2, max 16
-  static const unsigned char kShiftY = 4 ; // bits to shift from 256 to Y
-#endif
-  static const unsigned short kSize = kX * kY ;
   static const unsigned char kBalls = 8 ; // number of balls - max 8
 
   LedMatrixBall() ;
@@ -88,7 +80,7 @@ private:
   void GetColorBall(unsigned char byte) const ;
 
 private:
-  unsigned char _data[kSize] ; // each entry: 2x (2bit colIntensity | 6bit ballId)
+  unsigned char _data[LedMatrix::kSize] ; // each entry: 2x (2bit colIntensity | 6bit ballId)
   Ball _balls[kBalls] ;
 } ;
 

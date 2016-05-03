@@ -4,8 +4,6 @@
 
 #include "ball.h"
 
-extern "C" { void SendDataByte(unsigned char c) ; }
-
 ////////////////////////////////////////////////////////////////////////////////
 // Ball
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,9 +84,6 @@ void Ball::Update()
   _b.Update() ;
 }
 
-
-extern unsigned char RndVal ;
-
 unsigned char Ball::Rnd(Ball::RndType type) const
 {
   unsigned char rnd = 0 ;
@@ -123,14 +118,14 @@ void LedMatrixBall::Run()
   while (1)
   {
     Update() ;
-    for (unsigned short i = 0 ; i < 0xffff ; ++i)
-      i = i ;
+    for (unsigned short i = 0 ; i < 0x7fff ; ++i)
+      Nop() ;
   }
 }
 
 void LedMatrixBall::Clear()
 {
-  for (unsigned char *iData = _data, *eData = _data + kSize ; iData < eData ; ++iData)
+  for (unsigned char *iData = _data, *eData = _data + LedMatrix::kSize ; iData < eData ; ++iData)
     *iData = 0 ;
 }
 
@@ -144,31 +139,31 @@ void LedMatrixBall::Update()
     Ball &ball = *iBall ;
 
     ball.Update() ;
-    unsigned char x = ball.X() >> kShiftX ;
-    unsigned char y = ball.Y() >> kShiftY ;
+    unsigned char x = ball.X() >> LedMatrix::kShiftX ;
+    unsigned char y = ball.Y() >> LedMatrix::kShiftY ;
 
     if (x > 0)
     {
-      if (y > 0)    Set(x-1, y-1, ballId | 0x40) ;
-                    Set(x-1, y  , ballId | 0x80) ;
-      if (y < kY-1) Set(x-1, y+1, ballId | 0x40) ;
+      if (y > 0)               Set(x-1, y-1, ballId | 0x40) ;
+                               Set(x-1, y  , ballId | 0x80) ;
+      if (y < LedMatrix::kY-1) Set(x-1, y+1, ballId | 0x40) ;
     }
 
-    if (y > 0)    Set(x, y-1, ballId | 0x80) ;
-                  Set(x, y  , ballId | 0xc0) ;
-    if (y < kY-1) Set(x, y+1, ballId | 0x80) ;
+    if (y > 0)               Set(x, y-1, ballId | 0x80) ;
+                             Set(x, y  , ballId | 0xc0) ;
+    if (y < LedMatrix::kY-1) Set(x, y+1, ballId | 0x80) ;
 
-    if (x < kX-1)
+    if (x < LedMatrix::kX-1)
     {
-      if (y > 0)    Set(x+1, y-1, ballId | 0x40) ;
-                    Set(x+1, y  , ballId | 0x80) ;
-      if (y < kY-1) Set(x+1, y+1, ballId | 0x40) ;
+      if (y > 0)               Set(x+1, y-1, ballId | 0x40) ;
+                               Set(x+1, y  , ballId | 0x80) ;
+      if (y < LedMatrix::kY-1) Set(x+1, y+1, ballId | 0x40) ;
     }
 
     ++ballId ;
   }
 
-  for (unsigned char *iData = _data, *eData = _data + kSize ; iData < eData ; ++iData)
+  for (unsigned char *iData = _data, *eData = _data + LedMatrix::kSize ; iData < eData ; ++iData)
   {
     unsigned char data = *iData ;
     
@@ -187,13 +182,8 @@ void LedMatrixBall::Update()
 
 void LedMatrixBall::Set(unsigned char x, unsigned char y, unsigned char data)
 {
-  unsigned char idx = 0x00 ;
-
-  idx |= (x & 0x07) << 0 ;
-  idx |= (y & 0x07) << 3 ;
-  idx |= (x & 0x08) << 3 ;
-  idx |= (y & 0x08) << 4 ;
-
+  unsigned char idx ;
+  LedMatrix::CoordToIdx(x, y, idx) ;
   _data[idx] = data ;
 }
 

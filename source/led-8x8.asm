@@ -122,8 +122,6 @@ MainTable:
 	.word pm(ConstColGreen)
 	.word pm(ConstColBlue)
 	.word pm(ConstColWhite1)
-	.word pm(ConstColWhite2)
-	.word pm(ConstColWhite3)
 	.word 0x0000		; last
 	
 Balls:	
@@ -189,26 +187,6 @@ ConstColWhite1:
 	ldi r22, 0x3f
 	ldi r20, 0x3f
 	ldi r18, 0x3f
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
-	movw r24, _LedMatrixAddrLo
-	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
-
-ConstColWhite2:	
-	;; ConstCol constructor()
-	movw r24, _LedMatrixAddrLo
-	ldi r22, 0x7f
-	ldi r20, 0x7f
-	ldi r18, 0x7f
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
-	movw r24, _LedMatrixAddrLo
-	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
-
-ConstColWhite3:	
-	;; ConstCol constructor()
-	movw r24, _LedMatrixAddrLo
-	ldi r22, 0xff
-	ldi r20, 0xff
-	ldi r18, 0xff
 	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()

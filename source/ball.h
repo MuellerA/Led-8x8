@@ -68,21 +68,19 @@ private:
 class LedMatrixBall
 {
 public:
-  static const unsigned char kBalls = 8 ; // number of balls - max 8
+  static const unsigned char kBalls = 4 ;
 
   LedMatrixBall() ;
   void Run() ;
 
 private:
-  void Clear() ;
   void Update() ;
-  void Set(unsigned char x, unsigned char y, unsigned char data) ;
-  void GetColorBall(unsigned char byte) const ;
 
 private:
-  unsigned char _data[LedMatrix::kSize] ; // each entry: 2x (2bit colIntensity | 6bit ballId)
   Ball _balls[kBalls] ;
 } ;
+
+static_assert(sizeof(LedMatrixBall) < (RAMSIZE - 0x28), "not enough RAM") ;
 
 ////////////////////////////////////////////////////////////////////////////////
 // EOF

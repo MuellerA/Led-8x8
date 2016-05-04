@@ -52,7 +52,6 @@ class LedMatrix
   #error "undefined matrix layout"
 #endif
   static const unsigned short kSize = kX * kY ;
-
   
   static void CoordToIdx(unsigned char x, unsigned char y, unsigned char &idx) ;
   static void IdxToCoord(unsigned char idx, unsigned char &x, unsigned char &y) ;

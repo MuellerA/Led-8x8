@@ -41,9 +41,9 @@ void LedMatrix::IdxToCoord(unsigned char idx, unsigned char &x, unsigned char &y
     ((idx >> 4) & 0x08) ;
 #elif defined(MATRIX_8x8)
   x =
-    ((x >> 0) & 0x07) ;
+    ((idx >> 0) & 0x07) ;
   y =
-    ((y >> 3) & 0x07) ;
+    ((idx >> 3) & 0x07) ;
 #elif defined(MATRIX_2X8x8)
   x =
     ((idx >> 0) & 0x07) |

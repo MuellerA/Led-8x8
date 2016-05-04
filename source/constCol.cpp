@@ -18,6 +18,10 @@ private:
   Rgb _rgb ;
 } ;
 
+static_assert(sizeof(ConstCol) < (RAMSIZE - 0x28), "not enough RAM") ;
+
+////////////////////////////////////////////////////////////////////////////////
+
 ConstCol::ConstCol(unsigned char r, unsigned char g, unsigned char b)
 {
   _rgb.Set(r, g, b) ;

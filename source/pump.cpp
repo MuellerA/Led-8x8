@@ -22,6 +22,8 @@ private:
   Rgb _rgb[LedMatrix::kX/2] ;
 } ;
 
+static_assert(sizeof(Pump) < (RAMSIZE - 0x28), "not enough RAM") ;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Pump::Pump(unsigned char mode) : _mode(mode), _curRgb(_rgb[LedMatrix::kX/2 - 1])
@@ -69,9 +71,12 @@ void Pump::Run()
 	}
       }
 
-      for (unsigned long i = 0 ; i < 0x3ffff ; ++i)
+      for (unsigned long i = 0 ; i < 0xffff ; ++i)
 	Nop() ;
     }
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// EOF
+////////////////////////////////////////////////////////////////////////////////

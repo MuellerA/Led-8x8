@@ -133,14 +133,14 @@ Balls:
 Pump0:
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x00
-	rcall _ZN4PumpC1Eh		; Pump::Pump()
+	rcall _ZN4PumpC1Eh		; Pump::Pump(0)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN4Pump3RunEv	 	; Pump::Run()
 
 Pump1:
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x01
-	rcall _ZN4PumpC1Eh		; Pump::Pump()
+	rcall _ZN4PumpC1Eh		; Pump::Pump(1)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN4Pump3RunEv	 	; Pump::Run()
 
@@ -152,42 +152,38 @@ Flow:
 	rjmp _ZN4Flow3RunEv	 	; Flow::Run()
 
 ConstColRed:	
-	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0xff
 	ldi r20, 0x00
 	ldi r18, 0x00
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(0xff, 0x00, 0x00)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 
 ConstColGreen:	
-	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x00
 	ldi r20, 0xff
 	ldi r18, 0x00
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(0x00, 0xff, 0x00)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 
 ConstColBlue:	
-	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x00
 	ldi r20, 0x00
 	ldi r18, 0xff
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(0x00, 0x00, 0xff)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 
 ConstColWhite1:	
-	;; ConstCol constructor()
 	movw r24, _LedMatrixAddrLo
 	ldi r22, 0x3f
 	ldi r20, 0x3f
 	ldi r18, 0x3f
-	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(r, g, b)
+	rcall 	_ZN8ConstColC1Ehhh 	; ConstCol::CosntCol(0x3f, 0x3f, 0x3f)
 	movw r24, _LedMatrixAddrLo
 	rjmp _ZN8ConstCol3RunEv		; ConstCol::Run()
 

@@ -74,7 +74,7 @@ led-8x8.$(MCU).elf: $(Files)
 	$(AVRDIR)\bin\avr-objcopy -O ihex -R .eeporm $< $@
 
 Clean:
-	del boot.asm ports.*.inc *.o *.elf *.hex *~
+	del boot.*.asm ports.*.inc *.o *.elf *.hex *~
 
 Help:
 	@echo 'make [MCU=atmega328p|attiny45|attiny85] [Upload] [Clean] [BurnFuse] [ResetFuse] [Help]'

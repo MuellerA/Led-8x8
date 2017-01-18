@@ -1,80 +1,118 @@
+################################################################################
+# Makefile
+################################################################################
+
+# Program Paths
 AVRDIR	= d:\Programme\Arduino\hardware\tools\avr
+AVRDUDE	= $(AVRDIR)\bin\avrdude
+CXX	= $(AVRDIR)\bin\avr-g++ 
+AS	= $(AVRDIR)\bin\avr-as
+LD	= $(AVRDIR)\bin\avr-ld
+OBJCOPY	= $(AVRDIR)\bin\avr-objcopy
+OBJDUMP	= $(AVRDIR)\bin\avr-objdump.exe
+BootSetup = ruby ../../BootSetup/BootSetup.rb
 
-#MCU	?= atmega328p
-#MCU	?= attiny85
+# Build Target
 MCU	?= attiny45
+PROG	?= stk500v1
 
-ifeq ($(MCU),attiny45)
-PROG	= stk500v1
-BAUD	= 19200
-ERASE	= 
-PORT	?= COM6
-DEFSYM  = 45
-RAMSIZE = 256
-else ifeq ($(MCU),attiny85)
-PROG	= stk500v1
-BAUD	= 19200
-ERASE	= 
-PORT	?= COM6
-DEFSYM  = 85
-RAMSIZE = 512
+# Source Files
+Main	= led-8x8
+SrcAsm	= boot.$(MCU) $(Main)
+IncAsm	= ports.$(MCU) # settings
+SrcCpp	= ledMatrix ball constCol pump flow
+IncCpp	= ledMatrix
+Eeprom	= # -U eeprom:w:$<:r
+Fuses	= -U lfuse:w:0xff:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+
+# Programmer Settings
+ifeq ($(PROG), arduino)
+BAUD	?= 115200
+PORT	?= COM5
+ERASE	?= -D
+else ifeq ($(PROG), stk500v1)
+BAUD	?= 19200
+PORT	?= COM4
+ERASE	?=
 else
-PROG	= arduino
-BAUD	= 115200
-ERASE	= -D
-PORT	?= COM3
-DEFSYM  = 328
-RAMSIZE = 2048
+$(error unknown PROG $(PROG))
 endif
 
-
+################################################################################
 # nothing to be configured below
+################################################################################
 
-ALL:	led-8x8.$(MCU).hex
-
-Files = boot.$(MCU).o led-8x8.$(MCU).o ledMatrix.$(MCU).o ball.$(MCU).o constCol.$(MCU).o pump.$(MCU).o flow.$(MCU).o
-
-Upload: led-8x8.$(MCU).hex
-	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) $(ERASE) -U flash:w:$<:i
-
-ifeq ($(MCU),attiny45)
-BurnFuse:
-	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0xff:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
-
-ResetFuse:
-	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+ifeq ($(MCU),attiny24)
+DEFSYM  = 24
+else ifeq ($(MCU),attiny44)
+DEFSYM  = 44
+else ifeq ($(MCU),attiny25)
+DEFSYM  = 25
+else ifeq ($(MCU),attiny45)
+DEFSYM  = 45
+else ifeq ($(MCU),attiny85)
+DEFSYM  = 85
+else ifeq ($(MCU),atmega8)
+DEFSYM  = 8
+else ifeq ($(MCU),atmega328p)
+DEFSYM  = 328
+else
+$(error unknown MCU $(MCU))
 endif
 
-ifeq ($(MCU),attiny85)
-BurnFuse:
-	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0xff:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
+################################################################################
 
-ResetFuse:
-	$(AVRDIR)\bin\avrdude -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD) -U lfuse:w:0x62:m -U hfuse:w:0xdf:m -U efuse:w:0xff:m
-endif
+ObjAsm  = $(addsuffix .$(MCU).o,$(SrcAsm))
+ObjCpp	= $(addsuffix .$(MCU).o,$(SrcCpp))
+
+.PHONY:	ALL
+
+ALL:	$(Main).$(MCU).hex
 
 boot.$(MCU).asm ports.$(MCU).inc: Config.$(MCU)
-	ruby ../../BootSetup/BootSetup.rb -c Config.$(MCU)
+	$(BootSetup) -c Config.$(MCU)
 
-led-8x8.$(MCU).o: led-8x8.asm ports.$(MCU).inc
-	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
+%.$(MCU).o %.o: %.asm $(addsuffix .inc, $(IncAsm))
+	$(AS) -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
 
-%.o: %.asm ports.$(MCU).inc
-	$(AVRDIR)\bin\avr-as -g -mmcu=$(MCU) -defsym __MCU__=$(DEFSYM) -o $@ $<
+%.$(MCU).o: %.cpp $(addsuffix .h, $(IncCpp))
+	$(CXX) -DRAMSIZE=$(RAMSIZE) -O2 -Wall -std=c++11 -c -mmcu=$(MCU) -o $@ $<
 
-%.$(MCU).o: %.cpp ledMatrix.h
-	$(AVRDIR)\bin\avr-g++ -DRAMSIZE=$(RAMSIZE) -O2 -Wall -std=c++11 -c -mmcu=$(MCU) -o $@ $<
-
-ball.$(MCU).o: ball.h
-
-led-8x8.$(MCU).elf: $(Files)
-	$(AVRDIR)\bin\avr-ld -o $@ $(Files)
+$(Main).$(MCU).elf: $(ObjAsm) $(ObjCpp)
+	$(LD) -o $@ $(ObjAsm) $(ObjCpp)
 
 %.hex: %.elf
-	$(AVRDIR)\bin\avr-objcopy -O ihex -R .eeporm $< $@
+	$(OBJCOPY) -O ihex -R .eeporm $< $@
+
+################################################################################
+# PHONY targets
+
+AVRDUDEParam = -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD)
+
+.PHONY:	Upload Clean Eeprom Fuses Dism Help
+
+Upload: $(Main).$(MCU).hex
+	$(AVRDUDE) $(AVRDUDEParam) $(ERASE) -U flash:w:$<:i
 
 Clean:
-	del boot.*.asm ports.*.inc *.o *.elf *.hex *~
+	del boot.*.asm ports.*.inc *.o *.elf *.hex *.dism *~
+
+ifneq ($(Eeprom),)
+Eeprom:
+	$(AVRDUDE) $(AVRDUDEParam) $(Eeprom)
+endif
+
+ifneq ($(Fuses),)
+Fuses:
+	$(AVRDUDE) $(AVRDUDEParam) $(Fuses)
+endif
+
+Dism:	$(Main).$(MCU).elf
+	$(OBJDUMP) -D -m avr5 $< > $(Main).$(MCU).dism
 
 Help:
-	@echo 'make [MCU=atmega328p|attiny45|attiny85] [Upload] [Clean] [BurnFuse] [ResetFuse] [Help]'
+	@echo 'make [MCU=atmega328p|attiny45|attiny85] [PROG=stk500v1|arduino] [Upload] [Clean] [Eeprom] [Fuses] [Help]'
+
+################################################################################
+# EOF
+################################################################################

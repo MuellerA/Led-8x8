@@ -57,7 +57,7 @@
 <ul>
   <li>To upload the hex file to the ATtiny45 with an Arduino Uno board as programmer follow the instructions on http://highlowtech.org/?p=1695 'connecting an Arduino (as ISP) to an ATtiny'</li>
   <li>Run 'make MCU=attiny45 Upload' to upload the hex file</li>
-  <li>Run 'make MCU=attiny45 BurnFuse' to make the ATtiny45 use an external clock source. Warning: After burning the Fuse you cannot use the ATtiny45 without an external clock (not even reprogram to clear the fuse)!</li>
+  <li>Run 'make MCU=attiny45 Fuses' to make the ATtiny45 use an external clock source. Warning: After burning the Fuse you cannot use the ATtiny45 without an external clock (not even reprogram to clear the fuse)!</li>
   <li>Setup the ATtiny45, 20MHz oscillator, two 22pF capacitors, 10uF capacitor, push button and the LED matrix as shown in the <a href="Led-8x8.png">image</a></li>
 </ul>
 

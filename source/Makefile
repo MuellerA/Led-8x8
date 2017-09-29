@@ -3,13 +3,19 @@
 ################################################################################
 
 # Program Paths
-AVRDIR	= d:\Programme\Arduino\hardware\tools\avr
-AVRDUDE	= $(AVRDIR)\bin\avrdude
-CXX	= $(AVRDIR)\bin\avr-g++ 
-AS	= $(AVRDIR)\bin\avr-as
-LD	= $(AVRDIR)\bin\avr-ld
-OBJCOPY	= $(AVRDIR)\bin\avr-objcopy
-OBJDUMP	= $(AVRDIR)\bin\avr-objdump.exe
+#AVRBIN	= d:/Programme/Arduino/hardware/tools/avr/bin
+#AVRETC = d:/Programme/Arduino/hardware/tools/avr/etc/avrdude.conf
+#RM	= del
+AVRBIN  = /usr/bin
+AVRETC  = /etc
+RM      = /bin/rm -f
+
+AVRDUDE	= $(AVRBIN)/avrdude
+CXX	= $(AVRBIN)/avr-g++
+AS	= $(AVRBIN)/avr-as
+LD	= $(AVRBIN)/avr-ld
+OBJCOPY	= $(AVRBIN)/avr-objcopy
+OBJDUMP	= $(AVRBIN)/avr-objdump.exe
 BootSetup = ruby ../../BootSetup/BootSetup.rb
 
 # Build Target
@@ -87,7 +93,7 @@ $(Main).$(MCU).elf: $(ObjAsm) $(ObjCpp)
 ################################################################################
 # PHONY targets
 
-AVRDUDEParam = -C $(AVRDIR)\etc\avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD)
+AVRDUDEParam = -C $(AVRETC)/avrdude.conf -p $(MCU) -c $(PROG) -P $(PORT) -b $(BAUD)
 
 .PHONY:	Upload Clean Eeprom Fuses Dism Help
 
@@ -95,7 +101,7 @@ Upload: $(Main).$(MCU).hex
 	$(AVRDUDE) $(AVRDUDEParam) $(ERASE) -U flash:w:$<:i
 
 Clean:
-	del boot.*.asm ports.*.inc *.o *.elf *.hex *.dism *~
+	$(RM) boot.*.asm ports.*.inc *.o *.elf *.hex *.dism *~
 
 ifneq ($(Eeprom),)
 Eeprom:
